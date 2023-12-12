@@ -27,5 +27,5 @@ async function seed() {
     return Todo.create(todos);
 }
 
-
+saad();
 export default seed;
