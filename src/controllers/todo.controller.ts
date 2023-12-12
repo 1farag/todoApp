@@ -17,6 +17,17 @@ export const createTodo = async (req: Request, res: Response) => {
     };
 };
 
+export const getTodos = async (req: Request, res: Response) => {
+    const { user } = req.body;
+    try {
+        const todos = await Todo.find({
+            user
+        });
+        res.status(200).json(new ApiResponse(true, "Todos fetched successfully", todos));
+    } catch (error: any) {
+        res.status(400).json(new ApiResponse(false, error.message, null));
+    }
+}
 export const getTodo = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { user } = req.body;
