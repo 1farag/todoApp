@@ -3,12 +3,12 @@ import ApiResponse from "../utils/response/ApiResponse";
 import Todo from "../models/todo.model";
 
 export const createTodo = async (req: Request, res: Response) => {
-    const { title, description, user } = req.body;
+    const { title, description } = req.body;
     try {
         const todo = new Todo({
             title,
             description,
-            user
+            user: res.locals.user._id
         });
         const newTodo = await todo.save();
         res.status(201).json(new ApiResponse(true, "Todo created successfully", newTodo));
@@ -17,9 +17,21 @@ export const createTodo = async (req: Request, res: Response) => {
     };
 };
 
+export const getTodos = async (req: Request, res: Response) => {
+    const { user } = req.body;
+    try {
+        const todos = await Todo.find({
+            user
+        });
+        res.status(200).json(new ApiResponse(true, "Todos fetched successfully", todos));
+    } catch (error: any) {
+        res.status(400).json(new ApiResponse(false, error.message, null));
+    }
+}
+
 export const getTodo = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { user } = req.body;
+    const user = res.locals.user._id;
     try {
         const todo = await Todo.findOne({ id, user });
         if (!todo) return res.status(404).json(new ApiResponse(false, "Todo not found", null));
@@ -33,7 +45,8 @@ export const getTodo = async (req: Request, res: Response) => {
 export const updateTodo = async (req: Request, res: Response) => {
 
     const { id } = req.params;
-    const { title, description, completed, user } = req.body;
+    const { title, description, completed } = req.body;
+    const user = res.locals.user._id;
     try {
         const updateTodo = await Todo.findOneAndUpdate({ id, user }, {
             title,
@@ -51,7 +64,7 @@ export const updateTodo = async (req: Request, res: Response) => {
 
 export const deleteTodo = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { user } = req.body;
+    const user = res.locals.user._id;
     try {
         await Todo.findOneAndDelete({ id, user });
         res.status(200).json(new ApiResponse(true, "Todo deleted successfully", null));
